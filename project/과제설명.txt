@@ -1,0 +1,21 @@
+1. Lecture 7에서 배운 seq2seq 예제를 참고하였고, Lecture 8.3 의 Attention 이 가미된 모델 AttentionSeq2seq을 사용하여 학습 진행하였습니다. 입력 데이터의 반전을 하여 정확도를 조금 더 향상시켰으며 공백 문자를 입력 사이즈 7, 출력 사이즈 7로 패딩하였습니다. 시간 한계로 인해 많은 하이퍼파라미터의 튜닝을 시도할 수 없었고, wordvec_size 를 16에서 20, max_epoch = 15으로 튜닝하여 진행하였습니다. 결과 정확도는 29.550%로 도출되었습니다.
+2. 전체 구조 설명: 
+    1. data.txt를 불러와서 x_train, t_train, x_test, t_test로 나눠서 저장합니다 (각각의 입력과 정답)
+    2. Hyperparam 을 정의합니다. 
+    3. Lecture 8의 모델 AttentionSeq2seq을 불러와서, 2. 에서 정의한 Hyperparam을 넣어모델을 초기화 합니다. 
+        - AttentionSeq2seq는 seq2seq 모델에서 Attention 기법을 넣은 모델로, Attention이란 기존 RNN의 문제점이었던 encoder의 고정길이 벡터 출력을 입력에 따른 가변길이 벡터로 전환하고, 원래는 다 버렸던 마지막 이전의 모든 LSTM의 h값을 모아서 decoder로 보내주는 기법입니다. 이를 통해서 더 많은 정보를 decoder는 입수하고 학습에 사용할 수 있습니다. Decoder에서는 그에 대응하여 encoder LSTM의 마지막 h만 사용하는 것이 아닌 hs 전부를 활용할 수 있도록 가중치와 softmax를 활용하여 Attention 계층을 만들어 줬습니다. 
+        - LSTM이란 Long short term memory의 약자로 기존 RNN의 기울기 소실 문제를 해결하기 위해 보완된 RNN 계층을 말합니다. LSTM은 RNN에서 시계열 정보만을 보내는 "고속도로" c 를 도입하고, output, forget, input 게이트를 이용한 계층입니다. 
+        - 기존의 seq2seq모델은 encoder-decoder 구조로 구성되어져있고, encoder는 입력시퀀스를 하나의 벡터표현으로 압축하고 decoder는 이 벡터 표현을 통해서 출력 시퀀스를 만들어냅니다.
+    4. Adam을 optimizer로 사용하는 trainer에서 3. 의 AttentionSeq2seq의 학습을 시작합니다. 
+
+3. 상술하였듯 시간관계상 많은 하이퍼파라미터 튜닝을 할 수는 없었고, 한가지 흥미로웠던 점은 data.txt를 학습할 때 아래와 같은 hyperparam 으로 학습하였을 경우
+wordvec_size = 16
+hidden_size = 256
+batch_size = 128
+max_epoch = 10
+max_grad = 5.0
+
+PeekySeq2seq 모델이 학습시간도 더 빠르고 정확도도 32.230% 로 AttentionSeq2seq의 8.440% 월등히 높았던 점입니다. 이에 Attention 기법도 선택적으로 사용하는 것이 옳은가, 하는 의문이 들었습니다.
+Hyperparam 튜닝 없이 PeekySeq2seq 모델로 학습한 결과와 AttentionSeq2seq 모델로 학습한 결과는 각각 peeky-no-tuning.txt, attention-no-tuning.txt 에 저장하였습니다.
+
+Hyperparam 튜닝을 한 AttentionSeq2seq 은 attention-tuning.txt 에 기록되어있습니다.

@@ -35,10 +35,10 @@ class PeekyDecoder:
 
         out = self.embed.forward(xs)
         hs = np.repeat(h, T, axis=0).reshape(N, T, H)
-        out = np.concatenate((hs, out), axis=2)
+        out = np.concatenate((hs, out), axis=2) # 열 병합 (N, T, D+H) affine 으로 들어감
 
         out = self.lstm.forward(out)
-        out = np.concatenate((hs, out), axis=2)
+        out = np.concatenate((hs, out), axis=2) # 열 병합 (N, T, D+H) LSTM 으로 들어감
 
         score = self.affine.forward(out)
         self.cache = H
